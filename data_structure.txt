@@ -1,0 +1,72 @@
+1.Chapter summary - sequence chapter into scenes based on PoVs. Assign location to each scene with a location_assignment confidence score. Mark low confidence or 'unknown' for hand assignment. Is provided list of existing locations and character states for characters in the chapter.
+ ex. ch1.
+ scene 1 - David - David's apartment - summary
+ scene 2 - David - Italian restaurant - summary
+ scene 3 - David - Italian restaurant - summary
+ scene 4 - David - abandoned warehouse - summary
+
+returns a list of characters relevant to the chapter, with brief suggestions on what to pull from RAG to best understand the impact on them.
+
+2. memories extraction per character
+ex. chapter includes David, Rin, Sophie and a bunch of thrid-plane characters 
+- a separate prompt for each of the characters along with full RAG retrieval. 
+- assign (momentary, arc, life) in terms of memory importance
+3. world_facts extraction
+- a labelling prompt that extracts full quotes about world facts present in the chapter, assigning each of them a type.
+- a memory extraction for each world fact, with different prompts depending on the type, that checks against RAG to verify if world_facts are unique and non-contradicting. Writes to world_facts directory with label new|supersede|contradict. World facts labeled contradict are moved to a warning file for handmade amends
+4. update relation states
+Update relation states according to created memories and chapter summaries, to prepare ground for the ingestion of the next chapter 
+5. update character states
+Update character states according to created memories and chapter summaries, to prepare ground for the ingestion of the next chapter 
+- a separate prompt for every character 
+
+
+data structure
+/character_baseline (hand written)
+/character_states (kept for every named character, updated after every scene)
+    ex. 
+    name: David
+    current_location: Ki-Elico
+    current_emotion: is distraught having argued with Aura
+    current_objectives: make up with Aura, learn at the academy
+    current_importance: main character 
+/character_relation_states
+  /pairs of every character that met. Marco-about-Diana (What Marco thinks about Diana), Diana-about-Marco (what Diana thinks about Marco), etc. 
+  ex. David likes Diana, but is distrustful of her. He thinks that under her calm, friendly facade, hides a fierce noble.
+/world_facts (some hand written, extracted from text if not already present)
+    - immutable
+    - concrete
+    - permanent or very long lasting
+    /bound
+        -tied to a specific name, entity or location.
+        /sentients - shared by specie_name
+            -ex. The alfieri are a race of parasitic creatures that hijack young human bodies and grow alongside them
+        /fauna - shared by specie_name
+            -bristlemanes are on average 3m tall, ferocious and strong. Their hides resist weak physical attacks.
+        /flora - shared by specie_name
+            -ex. a firebloom is a rare magical plant, with fiery red leaves and droplets of mana coalescing at its' leaves.
+        /location_characteristics - shared by location name
+            -ex. Grainwick looks like an early-medieval village, numbering around 600 inhabitants
+        /character_characteristics - shared by character name
+            -ex. Bert is a tall, broad man in his 30's
+        /socio-economic - shared by location name
+            -ex. people of the refugee district in Ki-Elico live in poverty
+    /ephemeral
+        /rules_of_magic - shared by magic_school_type
+            -ex. Mana is everywhere
+        /politics - shared by faction
+            -ex. The Empire is at war with the Kingdom.
+
+/locations (hand written or extracted if not present already)
+  - name with a baseline description
+/important_objects
+    - mentions of a new object
+    - comes with a short description
+    - types: magic_items, mementos, accessories
+/memories (something that the character did or happened to them, that is important enough to remember)
+  - short, concrete facts about something that happened
+  - tied to a single specific character using the cannonical name
+  - scored on impactfulness according to character state 
+  - strong memories stay for a long time, short memories are quickly forgotten
+  ex. "Marco got humiliated when Polbran made fun of his mom."
+/list of aliases
